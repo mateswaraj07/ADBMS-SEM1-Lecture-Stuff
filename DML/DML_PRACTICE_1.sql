@@ -138,3 +138,32 @@ create table Employee5(EmpID int NOT NULL, FirstName varchar(15), LastName varch
 insert into Employee5(EmpID, FirstName, LastName, EmpAge) values(2,'kirti','giri',21);
 -- insert into Employee5(EmpID, FirstName, LastName, EmpAge, EmpDept) values(3,'kirti','giri',21); -- error
 select * from Employee5;
+-- ================================================================ 9/10/26=====================================================================
+use company_db;
+create table Employee7 (EmpID int Primary Key, FirstName varchar(20), LastName varchar(20), EmpAge int, Salary int);
+desc Employee7;
+-- alter table Employee7 add check(Salary>=5000); -- defining check constraint on single column
+Alter table Employee7 add constraint chk_EmpAge_Salary check (EmpAge>20 AND Salary >=5000); -- to allow naming and defining  check constraint on multiple columns
+ desc Employee7;
+show create table Employee7; -- to check table details and constraints applied on the table.
+-- insert into Employee7 values(1,'Swaraj','Mate',20,6000); -- gives error salary>=5000
+insert into Employee7 values(1,'Swaraj','Mate',21,6000);
+select * from Employee7;
+Alter table Employee7 Drop Check chk_EmpAge_Salary;
+show create table Employee7;
+alter table Employee7 add check(Salary>=5000);
+-- insert into Employee7 values(1,'Shreepad','Suryawanshi',20,6000); -- gives error salary>=5000
+insert into Employee7 values(2,'Shreepad','Suryawanshi',22,6000);
+select * from Employee7;
+show create table Employee7;
+Alter table Employee7 Drop Check employee7_chk_1;
+-- index
+select * from Employee7;
+create index DemoIndex on Employee7(FirstName); -- single column
+show indexes from Employee7;
+create index DemoIndex2 on Employee7(FirstName,LastName);
+show indexes from Employee7;
+
+Drop index DemoIndex on Employee7; 
+Drop index DemoIndex2 on Employee7;
+
