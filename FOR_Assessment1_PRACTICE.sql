@@ -306,22 +306,113 @@ ON e.EmpID = p.EmpID;
 /*Exam-style challenge*/
 
 -- 71. Create a new database, two related tables, primary and foreign keys, and insert at least five records into each table.
-
+CREATE DATABASE CompanyPractice;
+USE CompanyPractice;
+CREATE TABLE Departments (
+    DeptID INT PRIMARY KEY,
+    DeptName VARCHAR(50) NOT NULL
+);
+CREATE TABLE Employees (
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50) NOT NULL,
+    Salary DECIMAL(10,2),
+    DeptID INT,
+    FOREIGN KEY (DeptID) REFERENCES Departments(DeptID)
+);
+INSERT INTO Departments VALUES
+(1, 'IT'),
+(2, 'HR'),
+(3, 'Finance'),
+(4, 'Sales'),
+(5, 'Marketing');
+INSERT INTO Employees VALUES
+(101, 'Raghav', 35000, 1),
+(102, 'Raashi', 45000, 2),
+(103, 'Rohan', 60000, 1),
+(104, 'Mohan', 50000, 3),
+(105, 'Sneha', 55000, 4);
 -- 72. Display all employees whose salary is above the average salary of their department.
-
+SELECT EmpName, Salary, DeptID
+FROM Employees e
+WHERE Salary > (
+    SELECT AVG(Salary)
+    FROM Employees
+    WHERE DeptID = e.DeptID
+);
 -- 73. Display each department's name, number of employees, and average salary. Show only departments with at least two employees.
-
+SELECT d.DeptName,
+       COUNT(e.EmpID) AS TotalEmployees,
+       AVG(e.Salary) AS AvgSalary
+FROM Departments d
+INNER JOIN Employees e
+    ON d.DeptID = e.DeptID
+GROUP BY d.DeptID, d.DeptName
+HAVING COUNT(e.EmpID) >= 2;
 -- 74. Display employees who have no project assigned, using LEFT JOIN and IS NULL.
-
+SELECT e.EmpID, e.EmpName
+FROM Employees e
+LEFT JOIN Projects p
+    ON e.EmpID = p.EmpID
+WHERE p.PID IS NULL;
 -- 75. Display all employees and projects, including unmatched rows, using LEFT JOIN + UNION + RIGHT JOIN.
-
+SELECT e.EmpID, e.EmpName, p.PID, p.PName
+FROM Employees e
+LEFT JOIN Projects p
+    ON e.EmpID = p.EmpID
+UNION
+SELECT e.EmpID, e.EmpName, p.PID, p.PName
+FROM Employees e
+RIGHT JOIN Projects p
+    ON e.EmpID = p.EmpID;
 -- 76. Change a column's data type, rename a column, and add a new column using ALTER TABLE.
-
+-- Change the data type
+ALTER TABLE Employees
+MODIFY Salary DECIMAL(12,2);
+-- Rename a column
+ALTER TABLE Employees
+RENAME COLUMN EmpName TO EmployeeName;
+-- Add a new column
+ALTER TABLE Employees
+ADD Email VARCHAR(100);
 -- 77. Create a foreign-key relationship, then try dropping the parent table. Resolve the foreign-key dependency correctly.
-
+CREATE TABLE Parent (
+    ID INT PRIMARY KEY
+);
+CREATE TABLE Child (
+    ChildID INT PRIMARY KEY,
+    ParentID INT,
+    FOREIGN KEY (ParentID) REFERENCES Parent(ID)
+);
+-- Drop the child table first
+DROP TABLE Child;
+-- Then drop the parent table
+DROP TABLE Parent;
 -- 78. Update two account balances in one transaction and use ROLLBACK to cancel the changes.
-
+START TRANSACTION;
+UPDATE TestAccounts
+SET Balance = Balance - 1000
+WHERE AccountID = 1;
+UPDATE TestAccounts
+SET Balance = Balance + 1000
+WHERE AccountID = 2;
+ROLLBACK;
+SELECT * FROM TestAccounts;
 -- 79. Find the department with the highest total salary using GROUP BY, SUM(), and sorting.
-
+SELECT DeptID, SUM(Salary) AS TotalSalary
+FROM Employees
+GROUP BY DeptID
+ORDER BY TotalSalary DESC
+LIMIT 1;
 -- 80. Write a complete query that displays employee name, department name, project name, 
 -- and salary for employees earning more than 40,000, sorted by salary from highest to lowest.
+SELECT e.EmpName,
+       d.DeptName,
+       p.PName,
+       e.Salary
+FROM Employees e
+INNER JOIN Departments d
+    ON e.DeptID = d.DeptID
+LEFT JOIN Projects p
+    ON e.EmpID = p.EmpID
+WHERE e.Salary > 40000
+ORDER BY e.Salary DESC;
